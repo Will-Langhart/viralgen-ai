@@ -96,7 +96,7 @@ Now http://127.0.0.1:5001/ will serve both backend and frontend.
   "prompt": "Best strategies for viral marketing"
 }
 ```
-	•	Response:
+•	Response:
  ```bash
  {
   "generated_content": "The key to viral marketing is..."
