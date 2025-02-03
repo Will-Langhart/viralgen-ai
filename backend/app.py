@@ -3,35 +3,30 @@ import os
 import openai
 import logging
 
-# Initialize Flask app with React frontend serving
-app = Flask(__name__, static_folder="build", static_url_path="/")
+# Set up Flask app
+app = Flask(__name__, static_folder=os.path.abspath("build"))
 
-# Set up logging for better debugging
+# Logging setup
 logging.basicConfig(level=logging.INFO)
 
 # Load OpenAI API Key from Environment Variable
-openai.api_key = os.getenv("OPENAI_API_KEY", "your_default_api_key_here")
+openai.api_key = os.getenv("OPENAI_API_KEY", "your_openai_api_key_here")
 
-# Serve React Frontend
-@app.route('/')
+# Serve React frontend
+@app.route("/")
 def serve_react_index():
-    try:
-        return send_from_directory(app.static_folder, "index.html")
-    except Exception as e:
-        logging.error(f"Error serving React index.html: {e}")
+    if not os.path.exists(os.path.join(app.static_folder, "index.html")):
+        logging.error("Error: React build not found.")
         return jsonify({"error": "Frontend not found. Make sure the React build exists."}), 500
+    return send_from_directory(app.static_folder, "index.html")
 
-# Serve Static Files (JS, CSS, Images)
-@app.route('/<path:path>')
+# Serve static files (CSS, JS, Images)
+@app.route("/<path:path>")
 def serve_static_files(path):
-    try:
-        return send_from_directory(app.static_folder, path)
-    except Exception as e:
-        logging.error(f"Error serving static file '{path}': {e}")
-        return jsonify({"error": f"Static file '{path}' not found."}), 404
+    return send_from_directory(app.static_folder, path)
 
 # AI Content Generation Endpoint
-@app.route('/generate', methods=['POST'])
+@app.route("/generate", methods=["POST"])
 def generate_content():
     try:
         data = request.json
@@ -42,18 +37,18 @@ def generate_content():
 
         logging.info(f"Generating AI content for prompt: {prompt}")
 
-        response = openai.Completion.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4",
-            prompt=f"Generate a viral social media post about: {prompt}",
-            max_tokens=100
+            messages=[{"role": "system", "content": "You are an AI content generator."},
+                      {"role": "user", "content": f"Generate a viral social media post about: {prompt}"}]
         )
 
-        generated_text = response["choices"][0]["text"].strip()
+        generated_text = response["choices"][0]["message"]["content"].strip()
         logging.info(f"AI Generated Content: {generated_text}")
 
         return jsonify({"generated_content": generated_text})
 
-    except openai.error.OpenAIError as oe:
+    except openai.OpenAIError as oe:
         logging.error(f"OpenAI API error: {oe}")
         return jsonify({"error": "AI service unavailable, try again later."}), 503
 
