@@ -37,13 +37,17 @@ def generate_content():
 
         logging.info(f"Generating AI content for prompt: {prompt}")
 
-        response = openai.ChatCompletion.create(
+        # ✅ Correct API Call
+        client = openai.OpenAI()
+        response = client.chat.completions.create(
             model="gpt-4",
-            messages=[{"role": "system", "content": "You are an AI content generator."},
-                      {"role": "user", "content": f"Generate a viral social media post about: {prompt}"}]
+            messages=[
+                {"role": "system", "content": "You are an AI content generator."},
+                {"role": "user", "content": f"Generate a viral social media post about: {prompt}"}
+            ]
         )
 
-        generated_text = response["choices"][0]["message"]["content"].strip()
+        generated_text = response.choices[0].message.content.strip()
         logging.info(f"AI Generated Content: {generated_text}")
 
         return jsonify({"generated_content": generated_text})
