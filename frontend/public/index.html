@@ -3,10 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ViralGen AI</title>
+    <title>ViralGen AI - AI-Powered Social Media Generator</title>
+    <link rel="stylesheet" href="%PUBLIC_URL%/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div class="container">
+        <h1>ViralGen AI</h1>
+        <p>Generate AI-powered social media content instantly!</p>
+        <input type="text" id="prompt" placeholder="Enter a social media topic...">
+        <button onclick="generateContent()">Generate Post</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function generateContent() {
+            const prompt = document.getElementById("prompt").value;
+            if (!prompt) {
+                alert("Please enter a topic!");
+                return;
+            }
+
+            const response = await fetch("http://127.0.0.1:5001/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt }),
+            });
+
+            const data = await response.json();
+            document.getElementById("result").innerHTML = `
+                <h3>AI-Generated Content:</h3>
+                <p>${data.generated_content}</p>
+            `;
+        }
+    </script>
 </body>
 </html>
